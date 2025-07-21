@@ -1,0 +1,19 @@
+# Dependencies
+shopping-app/node_modules/
+node_modules/
+
+# Build files
+shopping-app/build/
+shopping-app/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment variables
+.env
+.env.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
