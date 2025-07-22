@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import PaymentModal from './components/PaymentModal';
 import PaymentSuccess from './components/PaymentSuccess';
+import UPIPayment from './components/UPIPayment';
 
 // Sample product data
 const products = [
@@ -61,6 +62,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isUPIOpen, setIsUPIOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [orderData, setOrderData] = useState(null);
 
@@ -109,12 +111,19 @@ function App() {
       return;
     }
     setIsCartOpen(false);
-    setIsPaymentOpen(true);
+    // Show choice between Stripe and UPI
+    const useUPI = window.confirm('Choose payment method:\nOK = UPI Payment (PhonePe, GPay, Paytm)\nCancel = Card Payment (Stripe)');
+    if (useUPI) {
+      setIsUPIOpen(true);
+    } else {
+      setIsPaymentOpen(true);
+    }
   };
 
   const handlePaymentSuccess = (paymentData) => {
     setOrderData(paymentData);
     setIsPaymentOpen(false);
+    setIsUPIOpen(false);
     setIsSuccessOpen(true);
     setCart([]); // Clear cart after successful payment
   };
@@ -251,14 +260,14 @@ function App() {
                 <div className="total">
                   <strong>Total: ₹{getTotalPrice().toLocaleString()}</strong>
                 </div>
-                <button className="checkout-btn" onClick={handleCheckout}>💳 Proceed to Checkout</button>
+                <button className="checkout-btn">Proceed to Checkout</button>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Payment Modal */}
+      {/* Payment Modals */}
       <PaymentModal
         isOpen={isPaymentOpen}
         onClose={() => setIsPaymentOpen(false)}
@@ -267,7 +276,14 @@ function App() {
         onPaymentSuccess={handlePaymentSuccess}
       />
 
-      {/* Payment Success Modal */}
+      <UPIPayment
+        isOpen={isUPIOpen}
+        onClose={() => setIsUPIOpen(false)}
+        cartItems={cart}
+        total={getTotalPrice()}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
+
       <PaymentSuccess
         isOpen={isSuccessOpen}
         onClose={handleCloseSuccess}
