@@ -260,7 +260,7 @@ function App() {
                 <div className="total">
                   <strong>Total: ₹{getTotalPrice().toLocaleString()}</strong>
                 </div>
-                <button className="checkout-btn">Proceed to Checkout</button>
+                <button className="checkout-btn" onClick={handleCheckout}>💳 Proceed to Checkout</button>
               </div>
             )}
           </div>
