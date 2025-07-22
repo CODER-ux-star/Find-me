@@ -33,7 +33,7 @@ const products = [
   {
     id: 4,
     name: "Running Shoes",
-    price: 4599,
+    price: 1,
     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop",
     category: "Fashion",
     rating: 4.8
