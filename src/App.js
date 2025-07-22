@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
+import PaymentModal from './components/PaymentModal';
+import PaymentSuccess from './components/PaymentSuccess';
+import UPIPayment from './components/UPIPayment';
 
 // Sample product data
 const products = [
@@ -58,6 +61,10 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isUPIOpen, setIsUPIOpen] = useState(false);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [orderData, setOrderData] = useState(null);
 
   const categories = ['All', 'Electronics', 'Fashion', 'Accessories'];
 
@@ -96,6 +103,34 @@ function App() {
 
   const getTotalItems = () => {
     return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+    setIsCartOpen(false);
+    // Show choice between Stripe and UPI
+    const useUPI = window.confirm('Choose payment method:\nOK = UPI Payment (PhonePe, GPay, Paytm)\nCancel = Card Payment (Stripe)');
+    if (useUPI) {
+      setIsUPIOpen(true);
+    } else {
+      setIsPaymentOpen(true);
+    }
+  };
+
+  const handlePaymentSuccess = (paymentData) => {
+    setOrderData(paymentData);
+    setIsPaymentOpen(false);
+    setIsUPIOpen(false);
+    setIsSuccessOpen(true);
+    setCart([]); // Clear cart after successful payment
+  };
+
+  const handleCloseSuccess = () => {
+    setIsSuccessOpen(false);
+    setOrderData(null);
   };
 
   const filteredProducts = products.filter(product => {
@@ -231,6 +266,29 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Payment Modals */}
+      <PaymentModal
+        isOpen={isPaymentOpen}
+        onClose={() => setIsPaymentOpen(false)}
+        cartItems={cart}
+        total={getTotalPrice()}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
+
+      <UPIPayment
+        isOpen={isUPIOpen}
+        onClose={() => setIsUPIOpen(false)}
+        cartItems={cart}
+        total={getTotalPrice()}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
+
+      <PaymentSuccess
+        isOpen={isSuccessOpen}
+        onClose={handleCloseSuccess}
+        orderData={orderData}
+      />
 
       {/* Footer */}
       <footer className="footer">
