@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './PaymentSuccess.css';
 
 const PaymentSuccess = ({ isOpen, onClose, orderData }) => {
-  if (!isOpen || !orderData) return null;
 
   const downloadReceipt = () => {
     const receipt = `
 ═══════════════════════════════════
           🛒 SHOPEASY RECEIPT
 ═══════════════════════════════════
+
+STORE INFORMATION:
+─────────────────────────────────
+Business: ShopEasy Online Store
+UPI ID: 9103594759@ybl
+Website: https://muzamilmeer.github.io/Find-me/
+Contact: shop@shopeasy.com
+
+TRANSACTION DETAILS:
+─────────────────────────────────
 
 Order Number: ${orderData.orderNumber}
 Date: ${new Date(orderData.timestamp).toLocaleDateString()}
@@ -31,7 +40,12 @@ ${orderData.items.map(item =>
 ─────────────────────────────────
 TOTAL AMOUNT: ₹${orderData.total.toLocaleString()}
 
-PAYMENT METHOD: Credit/Debit Card
+PAYMENT METHOD: ${orderData.paymentMethod === 'phonepe' ? 'PhonePe UPI' : 
+                   orderData.paymentMethod === 'gpay' ? 'Google Pay UPI' : 
+                   orderData.paymentMethod === 'paytm' ? 'Paytm UPI' : 
+                   orderData.paymentMethod === 'upi' ? 'UPI Payment' : 
+                   orderData.paymentMethod === 'qr' ? 'UPI QR Code' : 'Credit/Debit Card'}
+${orderData.upiId ? `UPI ID: ${orderData.upiId}` : ''}
 STATUS: ✅ PAID
 
 ═══════════════════════════════════
@@ -48,6 +62,18 @@ Visit us again at https://muzamilmeer.github.io/Find-me/
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  // Auto-download receipt after 2 seconds
+  useEffect(() => {
+    if (isOpen && orderData) {
+      const timer = setTimeout(() => {
+        downloadReceipt();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, orderData]);
+
+  if (!isOpen || !orderData) return null;
 
   return (
     <div className="success-modal-overlay">
@@ -96,11 +122,15 @@ Visit us again at https://muzamilmeer.github.io/Find-me/
 
           <div className="action-buttons">
             <button onClick={downloadReceipt} className="download-btn">
-              📄 Download Receipt
+              📄 Download Receipt Again
             </button>
             <button onClick={onClose} className="continue-btn">
               🛒 Continue Shopping
             </button>
+          </div>
+
+          <div className="auto-download-info">
+            <p>📥 <strong>Receipt:</strong> Automatically downloaded! Check your downloads folder.</p>
           </div>
 
           <div className="delivery-info">

@@ -209,6 +209,23 @@
   box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
+/* Auto Download Info */
+.auto-download-info {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  padding: 15px;
+  border-radius: 12px;
+  border-left: 4px solid #ffc107;
+  text-align: center;
+  margin: 15px 0;
+  animation: pulse 2s infinite;
+}
+
+.auto-download-info p {
+  margin: 0;
+  color: #856404;
+  font-weight: 500;
+}
+
 /* Delivery Info */
 .delivery-info {
   background: #e8f5e8;
