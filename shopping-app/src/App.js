@@ -112,8 +112,8 @@ function App() {
     const orderNumber = 'ORD-' + Date.now();
     const timestamp = new Date().toISOString();
     
-    // Use Razorpay.me direct link - works perfectly in APK and web
-    const razorpayUrl = `https://razorpay.me/@muzamilahmadmirgojjer/${total}`;
+    // Use Razorpay.me direct link without amount for better compatibility
+    const razorpayUrl = `https://razorpay.me/@muzamilahmadmirgojjer`;
     
     // Store order data for receipt
     const orderData = {
@@ -131,6 +131,7 @@ function App() {
       `💳 Payment Amount: ₹${total.toLocaleString()}\n` +
       `📋 Order: ${orderNumber}\n\n` +
       `🔥 Proceed to Razorpay Payment?\n` +
+      `💡 You'll need to enter ₹${total.toLocaleString()} manually\n` +
       `✅ Click OK to continue payment`
     );
     
@@ -140,7 +141,7 @@ function App() {
       
       // Show success message and receipt after short delay
       setTimeout(() => {
-        alert('🎉 Payment initiated! Please complete the payment in the opened window.');
+        alert(`🎉 Payment page opened!\n\n💰 Please enter: ₹${total.toLocaleString()}\n🔒 Complete the payment to finish your order.`);
         
         // Show receipt after payment attempt
         setTimeout(() => {
