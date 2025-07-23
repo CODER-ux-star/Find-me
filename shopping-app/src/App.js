@@ -130,31 +130,39 @@ function App() {
     {
       // Simply open the Razorpay.me link - works in APK and web
       window.open(razorpayUrl, '_blank');
-      
-      // Show receipt after payment attempt  
-      setTimeout(() => {
-        showReceipt(orderData);
-      }, 8000);
     }
     
-    // Auto-generate receipt after 8 seconds - no confirmation needed
+    // Show payment confirmation after user returns
     setTimeout(() => {
-      // Generate receipt automatically
-      const receipt = {
-        ...orderData,
-        status: 'Paid',
-        paymentTime: new Date().toISOString(),
-        customerInfo: {
-          name: 'Customer',
-          email: 'customer@example.com'
-        }
-      };
+      const paymentConfirmed = window.confirm(
+        `💰 Have you completed the payment of ₹${total.toLocaleString()}?\n\n` +
+        `📋 Order: ${orderNumber}\n` +
+        `🔗 Payment via: Razorpay\n\n` +
+        `✅ Click OK if payment is successful\n` +
+        `❌ Click Cancel if payment was not completed`
+      );
       
-      setReceiptData(receipt);
-      setShowReceipt(true);
-      setCart([]); // Clear cart
-      setIsCartOpen(false);
-    }, 8000);
+      if (paymentConfirmed) {
+        // Generate receipt only if user confirms payment
+        const receipt = {
+          ...orderData,
+          status: 'Paid',
+          paymentTime: new Date().toISOString(),
+          customerInfo: {
+            name: 'Customer',
+            email: 'customer@example.com'
+          }
+        };
+        
+        setReceiptData(receipt);
+        setShowReceipt(true);
+        setCart([]); // Clear cart
+        setIsCartOpen(false);
+      } else {
+        // User cancelled - no receipt, keep cart
+        alert('❌ Payment cancelled. Your items are still in the cart.');
+      }
+    }, 5000); // Show confirmation after 5 seconds
   };
 
   const downloadReceipt = () => {
