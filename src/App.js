@@ -126,16 +126,8 @@ function App() {
       paymentUrl: razorpayUrl
     };
     
-    // Show payment confirmation
-    const proceedPayment = window.confirm(
-      `💳 Payment Amount: ₹${total.toLocaleString()}\n` +
-      `📋 Order: ${orderNumber}\n\n` +
-      `🔥 Proceed to Razorpay Payment?\n` +
-      `💡 You'll need to enter ₹${total.toLocaleString()} manually\n` +
-      `✅ Click OK to continue payment`
-    );
-    
-    if (proceedPayment) {
+    // Direct payment without confirmation popup
+    {
       // Smart payment method detection and opening
       const tryPaymentApp = (appUrl, fallbackDelay = 3000) => {
         const iframe = document.createElement('iframe');
@@ -223,50 +215,33 @@ function App() {
       };
 
       const showPaymentInstructions = () => {
+        // Show receipt after payment attempt - no popup
         setTimeout(() => {
-          alert(`🎉 Payment page opened!\n\n💰 Please enter: ₹${total.toLocaleString()}\n🔒 Complete the payment to finish your order.`);
-          
-          // Show receipt after payment attempt
-          setTimeout(() => {
-            showReceipt(orderData);
-          }, 2000);
-        }, 1000);
+          showReceipt(orderData);
+        }, 3000);
       };
 
-      // Start the payment app detection process
-      alert(`🔍 Detecting payment apps...\n\n💳 Amount: ₹${total.toLocaleString()}\n📱 Will try PhonePe, GPay, Paytm, then browser`);
-      
-      setTimeout(() => {
-        tryNextApp();
-      }, 500);
+      // Start the payment app detection process silently
+      tryNextApp();
     }
     
-    // Show confirmation dialog after 8 seconds
+    // Auto-generate receipt after 8 seconds - no confirmation needed
     setTimeout(() => {
-      const paymentConfirmed = window.confirm(
-        `Have you completed the payment of ₹${total.toLocaleString()}?\n\n` +
-        `Order: ${orderNumber}\n` +
-        `Payment via: Razorpay\n\n` +
-        `Click OK if payment is successful, Cancel if not completed.`
-      );
+      // Generate receipt automatically
+      const receipt = {
+        ...orderData,
+        status: 'Paid',
+        paymentTime: new Date().toISOString(),
+        customerInfo: {
+          name: 'Customer',
+          email: 'customer@example.com'
+        }
+      };
       
-      if (paymentConfirmed) {
-        // Generate receipt
-        const receipt = {
-          ...orderData,
-          status: 'Paid',
-          paymentTime: new Date().toISOString(),
-          customerInfo: {
-            name: 'Customer',
-            email: 'customer@example.com'
-          }
-        };
-        
-        setReceiptData(receipt);
-        setShowReceipt(true);
-        setCart([]); // Clear cart
-        setIsCartOpen(false);
-      }
+      setReceiptData(receipt);
+      setShowReceipt(true);
+      setCart([]); // Clear cart
+      setIsCartOpen(false);
     }, 8000);
   };
 
