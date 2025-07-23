@@ -58,6 +58,8 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState(null);
 
   const categories = ['All', 'Electronics', 'Fashion', 'Accessories'];
 
@@ -96,6 +98,115 @@ function App() {
 
   const getTotalItems = () => {
     return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const handleRazorpayPayment = () => {
+    if (cart.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+
+    const total = getTotalPrice();
+    
+    // Generate order details
+    const orderNumber = 'ORD-' + Date.now();
+    const timestamp = new Date().toISOString();
+    
+    // Open Razorpay payment link with order details
+    const razorpayUrl = `https://razorpay.me/@muzamilahmadmirgojjer/${total}`;
+    
+    // Store order data for receipt
+    const orderData = {
+      orderNumber,
+      timestamp,
+      items: [...cart],
+      total,
+      paymentMethod: 'Razorpay',
+      status: 'Processing'
+    };
+    
+    // Open Razorpay in new tab
+    window.open(razorpayUrl, '_blank');
+    
+    // Show confirmation dialog after 5 seconds
+    setTimeout(() => {
+      const paymentConfirmed = window.confirm(
+        `Have you completed the payment of ₹${total.toLocaleString()}?\n\n` +
+        `Order: ${orderNumber}\n` +
+        `Click OK if payment is successful, Cancel if not completed.`
+      );
+      
+      if (paymentConfirmed) {
+        // Generate receipt
+        const receipt = {
+          ...orderData,
+          status: 'Paid',
+          paymentTime: new Date().toISOString(),
+          customerInfo: {
+            name: 'Customer',
+            email: 'customer@example.com'
+          }
+        };
+        
+        setReceiptData(receipt);
+        setShowReceipt(true);
+        setCart([]); // Clear cart
+        setIsCartOpen(false);
+      }
+    }, 5000);
+  };
+
+  const downloadReceipt = () => {
+    if (!receiptData) return;
+    
+    const receiptContent = `
+═══════════════════════════════════════
+          🛒 SHOPEASY RECEIPT
+═══════════════════════════════════════
+
+Order Number: ${receiptData.orderNumber}
+Date: ${new Date(receiptData.paymentTime).toLocaleDateString()}
+Time: ${new Date(receiptData.paymentTime).toLocaleTimeString()}
+Status: ✅ ${receiptData.status}
+
+───────────────────────────────────────
+                ITEMS
+───────────────────────────────────────
+
+${receiptData.items.map(item => 
+  `${item.name}
+   Qty: ${item.quantity} × ₹${item.price.toLocaleString()}
+   Total: ₹${(item.quantity * item.price).toLocaleString()}`
+).join('\n\n')}
+
+───────────────────────────────────────
+                SUMMARY  
+───────────────────────────────────────
+
+Subtotal: ₹${receiptData.total.toLocaleString()}
+Tax: ₹0
+Total Amount: ₹${receiptData.total.toLocaleString()}
+
+Payment Method: ${receiptData.paymentMethod}
+Payment Status: ✅ SUCCESSFUL
+
+───────────────────────────────────────
+Thank you for shopping with ShopEasy! 💝
+Visit us again at shopeasy.com
+───────────────────────────────────────
+
+Generated on: ${new Date().toLocaleString()}
+`;
+
+    const blob = new Blob([receiptContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ShopEasy_Receipt_${receiptData.orderNumber}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const filteredProducts = products.filter(product => {
@@ -225,8 +336,78 @@ function App() {
                 <div className="total">
                   <strong>Total: ₹{getTotalPrice().toLocaleString()}</strong>
                 </div>
+                <button 
+                  className="razorpay-btn"
+                  onClick={handleRazorpayPayment}
+                >
+                  💳 Pay with Razorpay
+                </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Receipt Modal */}
+      {showReceipt && receiptData && (
+        <div className="receipt-overlay">
+          <div className="receipt-modal">
+            <div className="receipt-header">
+              <h2>🧾 Payment Receipt</h2>
+              <button 
+                className="close-receipt"
+                onClick={() => setShowReceipt(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="receipt-content">
+              <div className="receipt-info">
+                <h3>✅ Payment Successful!</h3>
+                <p><strong>Order Number:</strong> {receiptData.orderNumber}</p>
+                <p><strong>Date:</strong> {new Date(receiptData.paymentTime).toLocaleDateString()}</p>
+                <p><strong>Time:</strong> {new Date(receiptData.paymentTime).toLocaleTimeString()}</p>
+                <p><strong>Status:</strong> <span className="status-paid">✅ Paid</span></p>
+              </div>
+              
+              <div className="receipt-items">
+                <h4>Items Purchased:</h4>
+                {receiptData.items.map(item => (
+                  <div key={item.id} className="receipt-item">
+                    <span>{item.name}</span>
+                    <span>{item.quantity} × ₹{item.price.toLocaleString()}</span>
+                    <span>₹{(item.quantity * item.price).toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="receipt-total">
+                <div className="total-row">
+                  <span>Subtotal:</span>
+                  <span>₹{receiptData.total.toLocaleString()}</span>
+                </div>
+                <div className="total-row">
+                  <span>Tax:</span>
+                  <span>₹0</span>
+                </div>
+                <div className="total-row final-total">
+                  <span><strong>Total Paid:</strong></span>
+                  <span><strong>₹{receiptData.total.toLocaleString()}</strong></span>
+                </div>
+              </div>
+              
+              <div className="receipt-payment">
+                <p><strong>Payment Method:</strong> {receiptData.paymentMethod}</p>
+                <p><strong>Payment ID:</strong> RZP_{Date.now()}</p>
+              </div>
+              
+              <button 
+                className="download-receipt-btn"
+                onClick={downloadReceipt}
+              >
+                📄 Download Receipt
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -463,6 +463,209 @@ body {
   }
 }
 
+/* Razorpay Payment Button */
+.razorpay-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.razorpay-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Receipt Modal */
+.receipt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.receipt-modal {
+  background: white;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  animation: receiptSlideIn 0.3s ease-out;
+}
+
+@keyframes receiptSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.receipt-header {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.receipt-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-receipt {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.close-receipt:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.receipt-content {
+  padding: 30px;
+}
+
+.receipt-info {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 2px solid #22c55e;
+}
+
+.receipt-info h3 {
+  color: #16a34a;
+  margin: 0 0 15px 0;
+  font-size: 1.3rem;
+}
+
+.receipt-info p {
+  margin: 8px 0;
+  color: #374151;
+}
+
+.status-paid {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.receipt-items {
+  margin: 30px 0;
+}
+
+.receipt-items h4 {
+  color: #374151;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.receipt-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: center;
+}
+
+.receipt-item:last-child {
+  border-bottom: none;
+}
+
+.receipt-total {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  color: #374151;
+}
+
+.final-total {
+  border-top: 2px solid #3b82f6;
+  padding-top: 15px;
+  margin-top: 15px;
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+.receipt-payment {
+  margin: 20px 0;
+  padding: 15px;
+  background: #eff6ff;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.receipt-payment p {
+  margin: 5px 0;
+  color: #374151;
+}
+
+.download-receipt-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.download-receipt-btn:hover {
+  background: linear-gradient(135deg, #5b21b6, #4c1d95);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+}
+
 @media (max-width: 480px) {
   .container {
     padding: 0 10px;
@@ -474,5 +677,20 @@ body {
   
   .search-bar {
     max-width: 100%;
+  }
+
+  .receipt-modal {
+    margin: 10px;
+    max-width: calc(100% - 20px);
+  }
+
+  .receipt-content {
+    padding: 20px;
+  }
+
+  .receipt-item {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    text-align: center;
   }
 }
