@@ -126,103 +126,15 @@ function App() {
       paymentUrl: razorpayUrl
     };
     
-    // Direct payment without confirmation popup
+    // Direct payment - Open Razorpay.me link only
     {
-      // Smart payment method detection and opening
-      const tryPaymentApp = (appUrl, fallbackDelay = 3000) => {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = appUrl;
-        document.body.appendChild(iframe);
-        
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 2000);
-      };
-
-      // Create UPI payment URLs for different apps
-      const merchantName = "ShopEasy";
-      const note = `ShopEasy Order ${orderNumber}`;
-      const upiId = "muzamilahmadmirgojjer@ybl";
+      // Simply open the Razorpay.me link - works in APK and web
+      window.open(razorpayUrl, '_blank');
       
-      const paymentApps = [
-        {
-          name: "PhonePe",
-          url: `phonepe://pay?pa=${upiId}&pn=${merchantName}&am=${total}&tn=${encodeURIComponent(note)}`,
-          installed: false
-        },
-        {
-          name: "GPay", 
-          url: `tez://upi/pay?pa=${upiId}&pn=${merchantName}&am=${total}&tn=${encodeURIComponent(note)}`,
-          installed: false
-        },
-        {
-          name: "Paytm",
-          url: `paytmmp://pay?pa=${upiId}&pn=${merchantName}&am=${total}&tn=${encodeURIComponent(note)}`,
-          installed: false
-        },
-        {
-          name: "BHIM UPI",
-          url: `upi://pay?pa=${upiId}&pn=${merchantName}&am=${total}&tn=${encodeURIComponent(note)}`,
-          installed: false
-        }
-      ];
-
-      // Try to detect and open available payment apps
-      let appOpened = false;
-      let currentAppIndex = 0;
-
-      const tryNextApp = () => {
-        if (currentAppIndex < paymentApps.length) {
-          const app = paymentApps[currentAppIndex];
-          console.log(`Trying to open ${app.name}...`);
-          
-          // Try to open the app
-          const startTime = Date.now();
-          const timeout = setTimeout(() => {
-            // If we're still here after 2 seconds, app probably not installed
-            if (Date.now() - startTime > 1500) {
-              console.log(`${app.name} not available, trying next...`);
-              currentAppIndex++;
-              tryNextApp();
-            }
-          }, 2000);
-
-          // Attempt to open the app
-          window.location.href = app.url;
-          
-          // Set a longer timeout for the app detection
-          setTimeout(() => {
-            clearTimeout(timeout);
-            if (!appOpened) {
-              currentAppIndex++;
-              if (currentAppIndex < paymentApps.length) {
-                tryNextApp();
-              } else {
-                // No apps worked, fallback to browser payment
-                console.log('No payment apps available, opening browser payment...');
-                window.open(razorpayUrl, '_blank');
-                showPaymentInstructions();
-              }
-            }
-          }, 3000);
-
-        } else {
-          // No more apps to try, use browser fallback
-          window.open(razorpayUrl, '_blank');
-          showPaymentInstructions();
-        }
-      };
-
-      const showPaymentInstructions = () => {
-        // Show receipt after payment attempt - no popup
-        setTimeout(() => {
-          showReceipt(orderData);
-        }, 3000);
-      };
-
-      // Start the payment app detection process silently
-      tryNextApp();
+      // Show receipt after payment attempt  
+      setTimeout(() => {
+        showReceipt(orderData);
+      }, 8000);
     }
     
     // Auto-generate receipt after 8 seconds - no confirmation needed
