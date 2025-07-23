@@ -112,22 +112,8 @@ function App() {
     const orderNumber = 'ORD-' + Date.now();
     const timestamp = new Date().toISOString();
     
-    // OPTION 1: Create a generic Razorpay Payment Page (requires manual setup)
-    // You need to create this page on Razorpay Dashboard first
-    // const razorpayUrl = `https://pages.razorpay.com/pl_YOUR_PAGE_ID/view`;
-    
-    // OPTION 2: Simple UPI payment approach
-    const upiId = "muzamilahmadmirgojjer@ybl"; // Replace with your actual UPI ID
-    const merchantName = "ShopEasy";
-    const note = `ShopEasy Payment - Order ${orderNumber}`;
-    
-    // Create UPI payment URLs for different apps
-    const paymentUrls = {
-      phonepe: `phonepe://pay?pa=${upiId}&pn=${merchantName}&am=${total}&tn=${encodeURIComponent(note)}`,
-      gpay: `tez://upi/pay?pa=${upiId}&pn=${merchantName}&am=${total}&tn=${encodeURIComponent(note)}`,
-      paytm: `paytmmp://pay?pa=${upiId}&pn=${merchantName}&am=${total}&tn=${encodeURIComponent(note)}`,
-      generic: `upi://pay?pa=${upiId}&pn=${merchantName}&am=${total}&tn=${encodeURIComponent(note)}`
-    };
+    // Use Razorpay.me direct link - works perfectly in APK and web
+    const razorpayUrl = `https://razorpay.me/@muzamilahmadmirgojjer/${total}`;
     
     // Store order data for receipt
     const orderData = {
@@ -135,48 +121,32 @@ function App() {
       timestamp,
       items: [...cart],
       total,
-      paymentMethod: 'UPI',
+      paymentMethod: 'Razorpay',
       status: 'Processing',
-      upiId: upiId
+      paymentUrl: razorpayUrl
     };
     
-    // Show payment options to user
-    const paymentChoice = window.confirm(
+    // Show payment confirmation
+    const proceedPayment = window.confirm(
       `💳 Payment Amount: ₹${total.toLocaleString()}\n` +
       `📋 Order: ${orderNumber}\n\n` +
-      `Choose Payment Method:\n` +
-      `✅ OK = Open UPI Apps (PhonePe, GPay, etc.)\n` +
-      `❌ Cancel = Manual UPI Payment`
+      `🔥 Proceed to Razorpay Payment?\n` +
+      `✅ Click OK to continue payment`
     );
     
-    if (paymentChoice) {
-      // Try to open UPI apps in sequence
-      const openUpiApp = () => {
-        // Try PhonePe first
-        window.open(paymentUrls.phonepe, '_blank');
-        
-        // Fallback to GPay after 2 seconds if PhonePe doesn't work
-        setTimeout(() => {
-          window.open(paymentUrls.gpay, '_blank');
-        }, 2000);
-        
-        // Generic UPI as final fallback
-        setTimeout(() => {
-          window.open(paymentUrls.generic, '_blank');
-        }, 4000);
-      };
+    if (proceedPayment) {
+      // Open Razorpay payment page
+      window.open(razorpayUrl, '_blank');
       
-      openUpiApp();
-    } else {
-      // Show manual payment details
-      alert(
-        `💰 Manual UPI Payment Details:\n\n` +
-        `🆔 UPI ID: ${upiId}\n` +
-        `💵 Amount: ₹${total.toLocaleString()}\n` +
-        `📝 Note: ${note}\n\n` +
-        `📱 Open any UPI app and send payment to above UPI ID\n` +
-        `⚡ Payment confirmation will appear shortly`
-      );
+      // Show success message and receipt after short delay
+      setTimeout(() => {
+        alert('🎉 Payment initiated! Please complete the payment in the opened window.');
+        
+        // Show receipt after payment attempt
+        setTimeout(() => {
+          showReceipt(orderData);
+        }, 2000);
+      }, 1000);
     }
     
     // Show confirmation dialog after 8 seconds
@@ -184,7 +154,7 @@ function App() {
       const paymentConfirmed = window.confirm(
         `Have you completed the payment of ₹${total.toLocaleString()}?\n\n` +
         `Order: ${orderNumber}\n` +
-        `UPI ID: ${upiId}\n\n` +
+        `Payment via: Razorpay\n\n` +
         `Click OK if payment is successful, Cancel if not completed.`
       );
       
@@ -243,9 +213,9 @@ Payment Method: ${receiptData.paymentMethod}
 Payment Status: ✅ SUCCESSFUL
 
 ───────────────────────────────────────
-UPI Payment Details:
-UPI ID: ${receiptData.upiId || 'muzamilahmadmirgojjer@ybl'}
-Transaction ID: UPI_${Date.now()}
+Razorpay Payment Details:
+Payment Link: ${receiptData.paymentUrl || 'razorpay.me/@muzamilahmadmirgojjer'}
+Transaction ID: RZP_${Date.now()}
 ───────────────────────────────────────
 Thank you for shopping with ShopEasy! 💝
 Visit us again at shopeasy.com
@@ -396,7 +366,7 @@ Generated on: ${new Date().toLocaleString()}
                   className="razorpay-btn"
                   onClick={handleRazorpayPayment}
                 >
-                  💳 Pay with UPI
+                  💳 Pay with Razorpay
                 </button>
               </div>
             )}
